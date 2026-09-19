@@ -50,30 +50,25 @@
         .period-row {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             margin-bottom: 2px;
         }
-        .period-input {
-            background: #111;
+        .period-text {
+            font-size: 9px;
+            color: #00f2fe;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .adj-btn {
+            background: #222;
             color: #00f2fe;
             border: 1px solid #00f2fe;
-            font-size: 9px;
-            padding: 2px 4px;
-            border-radius: 4px;
-            width: 115px;
-            text-align: center;
-            font-family: monospace;
-            outline: none;
-        }
-        .set-btn {
-            background: #00f2fe;
-            color: #111;
-            border: none;
             font-size: 8px;
-            font-weight: bold;
-            padding: 3px 5px;
-            border-radius: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
             cursor: pointer;
+            font-weight: bold;
         }
         .prediction-box {
             display: flex;
@@ -143,9 +138,9 @@
         <div class="header-tag">Paglu AI Pro</div>
         
         <div class="period-row">
-            <input type="text" id="periodInput" class="period-input" placeholder="Enter Period" 
-                   onfocus="requestFocus(true)" onblur="requestFocus(false)">
-            <button class="set-btn" onclick="setManualPeriod()">SET</button>
+            <button class="adj-btn" onclick="changePeriod(-1)">-</button>
+            <span class="period-text" id="periodDisplay">PER: Loading...</span>
+            <button class="adj-btn" onclick="changePeriod(1)">+</button>
         </div>
         
         <div class="prediction-box">
@@ -156,7 +151,7 @@
         <div class="digit-title">AI PREDICTED DIGIT</div>
         <div class="digit-value" id="digitValue">-</div>
 
-        <div class="status-bar" id="statusBar">Status: Active & Locked</div>
+        <div class="status-bar" id="statusBar">Status: Active & Stable</div>
 
         <div class="btn-row">
             <button class="btn btn-hide" onclick="minimizeApp()">HIDE</button>
@@ -165,58 +160,49 @@
     </div>
 
     <script>
-        let basePeriodNumber = 0;
+        let manualOffset = 0;
 
-        function requestFocus(isFocus) {
-            if (window.Android && typeof window.Android.requestFocusable === "function") {
-                window.Android.requestFocusable(isFocus);
-            }
-        }
-
-        function setManualPeriod() {
-            let val = document.getElementById("periodInput").value.trim();
-            if(!isNaN(val) && val.length > 5) {
-                basePeriodNumber = parseInt(val);
-                document.getElementById("periodInput").blur();
-            }
+        function changePeriod(val) {
+            manualOffset += val;
         }
 
         function updateEngine() {
             const now = new Date();
-            const currentSecond = now.getSeconds();
-            const timeLeft = 30 - (currentSecond % 30);
+            // UTC to IST time adjustment (+5:30)
+            const istTime = new Date(now.getTime() + (330 + now.getTimezoneOffset()) * 60000);
+            
+            const year = istTime.getFullYear();
+            const month = String(istTime.getMonth() + 1).padStart(2, '0');
+            const day = String(istTime.getDate()).padStart(2, '0');
+            
+            const hours = istTime.getHours();
+            const minutes = istTime.getMinutes();
+            const seconds = istTime.getSeconds();
+            
+            // Total 30-second intervals passed today
+            const totalIntervals = (hours * 120) + (minutes * 2) + Math.floor(seconds / 30);
+            
+            const baseNumber = parseInt(`${year}${month}${day}1000500000`) + totalIntervals + manualOffset;
+            
+            document.getElementById("periodDisplay").innerText = `PER: ${baseNumber}`;
 
-            if (basePeriodNumber > 0) {
-                let currentInterval = Math.floor(now.getTime() / 30000);
-                if (window.lastInterval && window.lastInterval !== currentInterval) {
-                    basePeriodNumber += 1;
-                }
-                window.lastInterval = currentInterval;
+            // Smart prediction logic
+            let hash = 0;
+            let pStr = baseNumber.toString();
+            for (let i = 0; i < pStr.length; i++) {
+                hash = ((hash << 5) - hash) + pStr.charCodeAt(i);
+                hash |= 0;
             }
+            let pseudoRandom = Math.abs(Math.sin(hash)) * 1000;
+            let remainder = Math.floor(pseudoRandom % 10);
 
-            let displayPeriod = basePeriodNumber > 0 ? basePeriodNumber : "Enter Period";
-            if(document.activeElement !== document.getElementById("periodInput")) {
-                document.getElementById("periodInput").placeholder = displayPeriod;
-            }
+            let isBig = remainder >= 5;
+            let predEl = document.getElementById("predValue");
+            let digitEl = document.getElementById("digitValue");
 
-            if (basePeriodNumber > 0) {
-                let hash = 0;
-                let pStr = basePeriodNumber.toString();
-                for (let i = 0; i < pStr.length; i++) {
-                    hash = ((hash << 5) - hash) + pStr.charCodeAt(i);
-                    hash |= 0;
-                }
-                let pseudoRandom = Math.abs(Math.sin(hash)) * 1000;
-                let remainder = Math.floor(pseudoRandom % 10);
-
-                let isBig = remainder >= 5;
-                let predEl = document.getElementById("predValue");
-                let digitEl = document.getElementById("digitValue");
-
-                predEl.innerText = isBig ? "BIG" : "SMALL";
-                predEl.className = "prediction-value " + (isBig ? "big-text" : "small-text");
-                digitEl.innerText = remainder;
-            }
+            predEl.innerText = isBig ? "BIG" : "SMALL";
+            predEl.className = "prediction-value " + (isBig ? "big-text" : "small-text");
+            digitEl.innerText = remainder;
         }
 
         setInterval(updateEngine, 1000);
