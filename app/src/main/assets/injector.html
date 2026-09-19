@@ -63,6 +63,7 @@
             width: 115px;
             text-align: center;
             font-family: monospace;
+            outline: none;
         }
         .set-btn {
             background: #00f2fe;
@@ -142,7 +143,8 @@
         <div class="header-tag">Paglu AI Pro</div>
         
         <div class="period-row">
-            <input type="text" id="periodInput" class="period-input" placeholder="Enter Period">
+            <input type="text" id="periodInput" class="period-input" placeholder="Enter Period" 
+                   onfocus="requestFocus(true)" onblur="requestFocus(false)">
             <button class="set-btn" onclick="setManualPeriod()">SET</button>
         </div>
         
@@ -164,12 +166,18 @@
 
     <script>
         let basePeriodNumber = 0;
-        let lastSecond = -1;
+
+        function requestFocus(isFocus) {
+            if (window.Android && typeof window.Android.requestFocusable === "function") {
+                window.Android.requestFocusable(isFocus);
+            }
+        }
 
         function setManualPeriod() {
             let val = document.getElementById("periodInput").value.trim();
             if(!isNaN(val) && val.length > 5) {
                 basePeriodNumber = parseInt(val);
+                document.getElementById("periodInput").blur();
             }
         }
 
@@ -178,7 +186,6 @@
             const currentSecond = now.getSeconds();
             const timeLeft = 30 - (currentSecond % 30);
 
-            // Har 30 second ke cycle par period number automatic aage badhega agar set kiya gaya hai
             if (basePeriodNumber > 0) {
                 let currentInterval = Math.floor(now.getTime() / 30000);
                 if (window.lastInterval && window.lastInterval !== currentInterval) {
@@ -188,10 +195,11 @@
             }
 
             let displayPeriod = basePeriodNumber > 0 ? basePeriodNumber : "Enter Period";
-            document.getElementById("periodInput").placeholder = displayPeriod;
+            if(document.activeElement !== document.getElementById("periodInput")) {
+                document.getElementById("periodInput").placeholder = displayPeriod;
+            }
 
             if (basePeriodNumber > 0) {
-                // Smart AI Prediction based on current period hash
                 let hash = 0;
                 let pStr = basePeriodNumber.toString();
                 for (let i = 0; i < pStr.length; i++) {
