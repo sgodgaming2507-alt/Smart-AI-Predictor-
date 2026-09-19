@@ -1,6 +1,9 @@
 package com.paglu.predictor.pro;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
@@ -13,16 +16,33 @@ import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import androidx.core.app.NotificationCompat;
 
 public class FloatingService extends Service {
     private WindowManager windowManager;
     private WebView webView;
     private WindowManager.LayoutParams params;
+    private static final String CHANNEL_ID = "PagluOverlayChannel";
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // Android 15 ke liye Foreground Notification zaroori hai taaki system app ko kill na kare
+        createNotificationChannel();
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Paglu AI Pro Active")
+                .setContentText("Prediction overlay running")
+                .setSmallIcon(android.R.drawable.ic_menu_compass)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .build();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        } else {
+            startForeground(1, notification);
+        }
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         webView = new WebView(this);
@@ -80,6 +100,20 @@ public class FloatingService extends Service {
         });
 
         windowManager.addView(webView, params);
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Paglu AI Service Channel",
+                    NotificationManager.IMPORTANCE_MIN
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(serviceChannel);
+            }
+        }
     }
 
     public class AppBridge {
