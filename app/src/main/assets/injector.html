@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paglu AI Pro - WinGo 30S Locked Engine</title>
+    <style>
+        body { 
+            background: transparent; 
+            color: #00ffcc; 
+            font-family: 'Courier New', Courier, monospace; 
+            margin: 0; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .circle-panel {
+            width: 240px;
+            height: 240px;
+            background: rgba(5, 12, 10, 0.96);
+            border-radius: 50%;
+            border: 3px solid transparent;
+            background-image: linear-gradient(rgba(5, 12, 10, 0.96), rgba(5, 12, 10, 0.96)), linear-gradient(135deg, #00ffcc, #ff007f, #7928ca);
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.5), inset 0 0 20px rgba(0, 255, 204, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 15px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .header-tag { 
+            font-size: 8px; 
+            font-weight: bold; 
+            background: rgba(0, 255, 204, 0.15);
+            color: #00ffcc; 
+            border: 1px solid #00ffcc;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            letter-spacing: 1px;
+        }
+        
+        .sub-title {
+            font-size: 7.5px;
+            color: #a0aec0;
+            margin-bottom: 2px;
+        }
+
+        .result-box {
+            font-size: 16px;
+            font-weight: 900;
+            color: #00ffcc;
+            text-shadow: 0 0 12px rgba(0, 255, 204, 0.8);
+            margin: 2px 0;
+            letter-spacing: 1.5px;
+        }
+
+        .number-box {
+            font-size: 18px;
+            font-weight: 900;
+            color: #ff007f;
+            text-shadow: 0 0 12px rgba(255, 0, 127, 0.8);
+        }
+
+        .status-box {
+            font-size: 7px;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px dashed #38bdf8;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin: 3px 0;
+            font-weight: bold;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 4px;
+        }
+
+        button { 
+            background: #00ffcc; 
+            color: #030712; 
+            border: none; 
+            padding: 3px 8px; 
+            font-weight: bold; 
+            font-size: 8.5px; 
+            border-radius: 4px; 
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        
+        .hide-btn { background: #fbbf24; color: #030712; }
+        .close-btn { background: #f43f5e; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="circle-panel">
+        <div class="header-tag">PAGLU 30S LOCKED</div>
+        <div class="sub-title">PER: <span id="period-num" style="color:#00ffcc;">000000</span> | <span id="timer" style="color:#f43f5e;">00:00</span></div>
+        
+        <div class="result-box" id="prediction">SYNCING</div>
+        <div style="font-size: 7px; color: #94a3b8; text-transform: uppercase;">Locked AI Digit</div>
+        <div class="number-box" id="lucky-number">-</div>
+
+        <div class="status-box" id="analytics-status">Status: Locked & Stable</div>
+
+        <div class="btn-group">
+            <button class="hide-btn" onclick="Android.minimizePanel()">HIDE</button>
+            <button class="close-btn" onclick="Android.closeApp()">EXIT</button>
+        </div>
+    </div>
+
+    <script>
+        let currentLockedPeriod = "";
+
+        function startEngine() {
+            function runClock() {
+                const now = new Date();
+                
+                // Strict IST Sync (UTC + 5:30)
+                const istOffset = 5.5 * 60 * 60 * 1000;
+                const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + istOffset);
+
+                const year = istDate.getFullYear();
+                const month = String(istDate.getMonth() + 1).padStart(2, '0');
+                const day = String(istDate.getDate()).padStart(2, '0');
+                
+                const hours = istDate.getHours();
+                const minutes = istDate.getMinutes();
+                const seconds = istDate.getSeconds();
+
+                // Exact 30-Second WinGo Period Index Calculation
+                const totalSecsToday = (hours * 3600) + (minutes * 60) + seconds;
+                const periodIndex = Math.floor(totalSecsToday / 30);
+                const fullPeriodId = `${year}${month}${day}30${periodIndex}`;
+
+                document.getElementById("period-num").innerText = fullPeriodId.slice(-6);
+
+                // 30 Seconds Countdown Timer
+                let secLeft = 29 - (seconds % 30);
+                let secStr = secLeft < 10 ? "0" + secLeft : secLeft;
+                document.getElementById("timer").innerText = "00:" + secStr;
+
+                // Check if period changed
+                if (fullPeriodId !== currentLockedPeriod) {
+                    currentLockedPeriod = fullPeriodId;
+                    generateAndLockPrediction(fullPeriodId);
+                }
+            }
+            setInterval(runClock, 1000);
+            runClock();
+        }
+
+        function stringHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return Math.abs(hash);
+        }
+
+        function generateAndLockPrediction(period) {
+            let savedData = localStorage.getItem("locked_pred_" + period);
+            let isBig, luckyDigit;
+
+            if (savedData) {
+                let parsed = JSON.parse(savedData);
+                isBig = parsed.isBig;
+                luckyDigit = parsed.luckyDigit;
+            } else {
+                let hashVal = stringHash(period);
+                isBig = (hashVal % 2 === 0);
+                luckyDigit = isBig ? (5 + (hashVal % 5)) : (hashVal % 5);
+
+                localStorage.setItem("locked_pred_" + period, JSON.stringify({ isBig, luckyDigit }));
+            }
+
+            let outcome = isBig ? "BIG 🟢" : "SMALL 🔴";
+
+            document.getElementById('prediction').innerText = outcome;
+            document.getElementById('prediction').style.color = isBig ? "#00ffcc" : "#ff007f";
+            document.getElementById('lucky-number').innerText = luckyDigit;
+        }
+
+        startEngine();
+    </script>
+</body>
+</html>
