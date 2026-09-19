@@ -22,10 +22,10 @@
         .container {
             width: 240px;
             height: 240px;
-            background: radial-gradient(circle, rgba(20,20,30,0.95) 0%, rgba(10,10,15,0.98) 100%);
+            background: radial-gradient(circle, rgba(15,15,25,0.96) 0%, rgba(5,5,10,0.98) 100%);
             border-radius: 50%;
             border: 3px solid transparent;
-            background-image: linear-gradient(radial(circle), rgba(20,20,30,0.95), rgba(10,10,15,0.98)), linear-gradient(135deg, #00f2fe, #4facfe, #ff0844, #ffb199);
+            background-image: linear-gradient(radial(circle), rgba(15,15,25,0.96), rgba(5,5,10,0.98)), linear-gradient(135deg, #00f2fe, #4facfe, #ff0844, #ffb199);
             background-origin: border-box;
             background-clip: padding-box, border-box;
             box-shadow: 0 0 20px rgba(0, 242, 254, 0.4), inset 0 0 15px rgba(255, 8, 68, 0.3);
@@ -36,36 +36,45 @@
             color: #fff;
             text-align: center;
             position: relative;
-            animation: pulseGlow 3s infinite alternate;
-        }
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
-            100% { box-shadow: 0 0 25px rgba(255, 8, 68, 0.5); }
         }
         .header-tag {
-            font-size: 9px;
+            font-size: 8px;
             letter-spacing: 1px;
             color: #00f2fe;
             border: 1px solid rgba(0, 242, 254, 0.4);
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-bottom: 4px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            margin-bottom: 2px;
             text-transform: uppercase;
         }
+        .period-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 2px;
+        }
         .period-text {
-            font-size: 10px;
-            color: #a0a0a5;
-            margin-bottom: 4px;
+            font-size: 9px;
+            color: #c0c0c5;
             font-family: monospace;
+        }
+        .sync-btn {
+            background: #333;
+            color: #00f2fe;
+            border: 1px solid #00f2fe;
+            font-size: 8px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            cursor: pointer;
         }
         .prediction-box {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin: 2px 0;
+            gap: 5px;
+            margin: 1px 0;
         }
         .prediction-value {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -74,45 +83,44 @@
         .small-text { color: #ff3366; text-shadow: 0 0 8px rgba(255,51,102,0.6); }
         
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             background-color: #00ff88;
             border-radius: 50%;
-            box-shadow: 0 0 6px #00ff88;
+            box-shadow: 0 0 5px #00ff88;
             animation: blink 1s infinite;
         }
         @keyframes blink { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
 
         .digit-title {
-            font-size: 8px;
+            font-size: 7px;
             color: #888;
             letter-spacing: 0.5px;
-            margin-top: 2px;
         }
         .digit-value {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #ffcc00;
-            text-shadow: 0 0 8px rgba(255,204,0,0.6);
+            text-shadow: 0 0 6px rgba(255,204,0,0.6);
         }
         .status-bar {
             font-size: 8px;
             color: #00f2fe;
             border-top: 1px dashed rgba(255,255,255,0.15);
-            padding-top: 3px;
-            margin-top: 3px;
+            padding-top: 2px;
+            margin-top: 2px;
             width: 75%;
         }
         .btn-row {
             display: flex;
-            gap: 8px;
-            margin-top: 6px;
+            gap: 6px;
+            margin-top: 4px;
         }
         .btn {
-            font-size: 9px;
-            padding: 3px 10px;
+            font-size: 8px;
+            padding: 2px 8px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
@@ -124,18 +132,22 @@
 <body>
 
     <div class="container">
-        <div class="header-tag">Paglu AI 30S Pro</div>
-        <div class="period-text" id="periodDisplay">PER: Loading...</div>
+        <div class="header-tag">Paglu AI Pro</div>
+        
+        <div class="period-row">
+            <span class="period-text" id="periodDisplay">PER: Loading...</span>
+            <button class="sync-btn" onclick="adjustPeriod(1)">+1</button>
+        </div>
         
         <div class="prediction-box">
             <span class="prediction-value" id="predValue">--</span>
             <div class="status-dot"></div>
         </div>
 
-        <div class="digit-title">ADVANCED AI DIGIT</div>
+        <div class="digit-title">AI PREDICTED DIGIT</div>
         <div class="digit-value" id="digitValue">-</div>
 
-        <div class="status-bar" id="statusBar">Analyzing Trend...</div>
+        <div class="status-bar" id="statusBar">Status: Active & Stable</div>
 
         <div class="btn-row">
             <button class="btn btn-hide" onclick="minimizeApp()">HIDE</button>
@@ -144,72 +156,57 @@
     </div>
 
     <script>
-        // Real-time WinGo 30s Period Calculator matching game server standard
-        function generatePeriod() {
-            const now = new Date();
-            // UTC to IST offset adjustment or local time sync
-            const utcYear = now.getUTCFullYear();
-            const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
-            const utcDay = String(now.getUTCDate()).padStart(2, '0');
-            
-            // Total seconds passed today in IST (+5:30)
-            const istTime = new Date(now.getTime() + (330 + now.getTimezoneOffset()) * 60000);
-            const hours = istTime.getHours();
-            const minutes = istTime.getMinutes();
-            const seconds = istTime.getSeconds();
-            
-            const total30SecIntervals = (hours * 120) + (minutes * 2) + Math.floor(seconds / 30);
-            
-            const yearStr = istTime.getFullYear();
-            const monthStr = String(istTime.getMonth() + 1).padStart(2, '0');
-            const dayStr = String(istTime.getDate()).padStart(2, '0');
-            
-            const baseNumber = `${yearStr}${monthStr}${dayStr}10005`;
-            const fullPeriod = parseInt(baseNumber) + total30SecIntervals;
-            
-            return {
-                period: fullPeriod.toString(),
-                timeLeft: 30 - (seconds % 30)
-            };
+        let manualOffset = 0;
+
+        function adjustPeriod(val) {
+            manualOffset += val;
         }
 
-        // Advanced AI Prediction Engine based on time seed and trend analysis
-        function updatePrediction(periodStr, timeLeft) {
-            document.getElementById("periodDisplay").innerText = `PER: ${periodStr} | 00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+        function calculateBasePeriod() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            
+            // Standard total seconds in the day divided by 30
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const secondsElapsed = Math.floor((now - startOfDay) / 1000);
+            const periodIndex = Math.floor(secondsElapsed / 30);
+            
+            // Standard server prefix format matching similar Wingo platforms
+            const baseStr = `${year}${month}${day}10005`;
+            return parseInt(baseStr) + periodIndex + manualOffset;
+        }
 
-            // Seed based pseudo-smart prediction to ensure stability during the 30s window
-            let seed = parseInt(periodStr.slice(-4));
-            let trendFactor = (seed * 9301 + 49297) % 233280;
-            let randomPseudo = trendFactor / 233280;
+        function updateEngine() {
+            const now = new Date();
+            const currentSecond = now.getSeconds();
+            const timeLeft = 30 - (currentSecond % 30);
+            
+            let currentPeriod = calculateBasePeriod();
+            document.getElementById("periodDisplay").innerText = `PER: ${currentPeriod}`;
 
+            // Smart weighted pseudo-random prediction based on period number hash
+            let hash = 0;
+            let pStr = currentPeriod.toString();
+            for (let i = 0; i < pStr.length; i++) {
+                hash = ((hash << 5) - hash) + pStr.charCodeAt(i);
+                hash |= 0;
+            }
+            let pseudoRandom = Math.abs(Math.sin(hash)) * 1000;
+            let remainder = pseudoRandom % 10;
+
+            let isBig = remainder >= 5;
             let predEl = document.getElementById("predValue");
             let digitEl = document.getElementById("digitValue");
-            let statusEl = document.getElementById("statusBar");
 
-            if (timeLeft > 5) {
-                // Locked stable prediction during the active window
-                let isBig = (randomPseudo > 0.48);
-                predEl.innerText = isBig ? "BIG" : "SMALL";
-                predEl.className = "prediction-value " + (isBig ? "big-text" : "small-text");
-
-                let predictedDigit = Math.floor(randomPseudo * 10);
-                if(isBig && predictedDigit < 5) predictedDigit += 5;
-                if(!isSmall && predictedDigit >= 5) predictedDigit -= 5;
-                digitEl.innerText = predictedDigit;
-
-                statusEl.innerText = "Status: Locked & Stable";
-            } else {
-                statusEl.innerText = "Status: Syncing Next...";
-            }
+            predEl.innerText = isBig ? "BIG" : "SMALL";
+            predEl.className = "prediction-value " + (isBig ? "big-text" : "small-text");
+            digitEl.innerText = Math.floor(pseudoRandom % 10);
         }
 
-        function engineLoop() {
-            let data = generatePeriod();
-            updatePrediction(data.period, data.timeLeft);
-        }
-
-        setInterval(engineLoop, 1000);
-        engineLoop();
+        setInterval(updateEngine, 1000);
+        updateEngine();
 
         function minimizeApp() {
             if (window.Android && typeof window.Android.minimizePanel === "function") {
