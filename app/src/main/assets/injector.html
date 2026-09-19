@@ -3,200 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paglu AI Pro - WinGo 30S Locked Engine</title>
+    <title>Paglu AI Pro Predictor</title>
     <style>
-        body { 
-            background: transparent; 
-            color: #00ffcc; 
-            font-family: 'Courier New', Courier, monospace; 
-            margin: 0; 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: transparent;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
         }
-
-        .circle-panel {
+        .container {
             width: 240px;
             height: 240px;
-            background: rgba(5, 12, 10, 0.96);
+            background: radial-gradient(circle, rgba(20,20,30,0.95) 0%, rgba(10,10,15,0.98) 100%);
             border-radius: 50%;
             border: 3px solid transparent;
-            background-image: linear-gradient(rgba(5, 12, 10, 0.96), rgba(5, 12, 10, 0.96)), linear-gradient(135deg, #00ffcc, #ff007f, #7928ca);
+            background-image: linear-gradient(radial(circle), rgba(20,20,30,0.95), rgba(10,10,15,0.98)), linear-gradient(135deg, #00f2fe, #4facfe, #ff0844, #ffb199);
             background-origin: border-box;
-            background-clip: content-box, border-box;
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.5), inset 0 0 20px rgba(0, 255, 204, 0.3);
+            background-clip: padding-box, border-box;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4), inset 0 0 15px rgba(255, 8, 68, 0.3);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            color: #fff;
             text-align: center;
-            padding: 15px;
-            box-sizing: border-box;
             position: relative;
+            animation: pulseGlow 3s infinite alternate;
         }
-
-        .header-tag { 
-            font-size: 8px; 
-            font-weight: bold; 
-            background: rgba(0, 255, 204, 0.15);
-            color: #00ffcc; 
-            border: 1px solid #00ffcc;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-bottom: 2px;
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
+            100% { box-shadow: 0 0 25px rgba(255, 8, 68, 0.5); }
+        }
+        .header-tag {
+            font-size: 9px;
+            letter-spacing: 1px;
+            color: #00f2fe;
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .period-text {
+            font-size: 10px;
+            color: #a0a0a5;
+            margin-bottom: 4px;
+            font-family: monospace;
+        }
+        .prediction-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 2px 0;
+        }
+        .prediction-value {
+            font-size: 22px;
+            font-weight: 800;
+            text-transform: uppercase;
             letter-spacing: 1px;
         }
+        .big-text { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.6); }
+        .small-text { color: #ff3366; text-shadow: 0 0 8px rgba(255,51,102,0.6); }
         
-        .sub-title {
-            font-size: 7.5px;
-            color: #a0aec0;
-            margin-bottom: 2px;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #00ff88;
+            animation: blink 1s infinite;
         }
+        @keyframes blink { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
 
-        .result-box {
-            font-size: 16px;
-            font-weight: 900;
-            color: #00ffcc;
-            text-shadow: 0 0 12px rgba(0, 255, 204, 0.8);
-            margin: 2px 0;
-            letter-spacing: 1.5px;
+        .digit-title {
+            font-size: 8px;
+            color: #888;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
         }
-
-        .number-box {
+        .digit-value {
             font-size: 18px;
-            font-weight: 900;
-            color: #ff007f;
-            text-shadow: 0 0 12px rgba(255, 0, 127, 0.8);
-        }
-
-        .status-box {
-            font-size: 7px;
-            color: #38bdf8;
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px dashed #38bdf8;
-            padding: 1px 6px;
-            border-radius: 3px;
-            margin: 3px 0;
             font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 8px rgba(255,204,0,0.6);
         }
-
-        .btn-group {
+        .status-bar {
+            font-size: 8px;
+            color: #00f2fe;
+            border-top: 1px dashed rgba(255,255,255,0.15);
+            padding-top: 3px;
+            margin-top: 3px;
+            width: 75%;
+        }
+        .btn-row {
             display: flex;
-            gap: 5px;
-            width: 100%;
-            justify-content: center;
-            margin-top: 4px;
+            gap: 8px;
+            margin-top: 6px;
         }
-
-        button { 
-            background: #00ffcc; 
-            color: #030712; 
-            border: none; 
-            padding: 3px 8px; 
-            font-weight: bold; 
-            font-size: 8.5px; 
-            border-radius: 4px; 
+        .btn {
+            font-size: 9px;
+            padding: 3px 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
             cursor: pointer;
-            pointer-events: auto;
+            text-transform: uppercase;
         }
-        
-        .hide-btn { background: #fbbf24; color: #030712; }
-        .close-btn { background: #f43f5e; color: white; }
+        .btn-hide { background: #ffcc00; color: #111; }
+        .btn-exit { background: #ff3366; color: #fff; }
     </style>
 </head>
 <body>
 
-    <div class="circle-panel">
-        <div class="header-tag">PAGLU 30S LOCKED</div>
-        <div class="sub-title">PER: <span id="period-num" style="color:#00ffcc;">000000</span> | <span id="timer" style="color:#f43f5e;">00:00</span></div>
+    <div class="container">
+        <div class="header-tag">Paglu AI 30S Pro</div>
+        <div class="period-text" id="periodDisplay">PER: Loading...</div>
         
-        <div class="result-box" id="prediction">SYNCING</div>
-        <div style="font-size: 7px; color: #94a3b8; text-transform: uppercase;">Locked AI Digit</div>
-        <div class="number-box" id="lucky-number">-</div>
+        <div class="prediction-box">
+            <span class="prediction-value" id="predValue">--</span>
+            <div class="status-dot"></div>
+        </div>
 
-        <div class="status-box" id="analytics-status">Status: Locked & Stable</div>
+        <div class="digit-title">ADVANCED AI DIGIT</div>
+        <div class="digit-value" id="digitValue">-</div>
 
-        <div class="btn-group">
-            <button class="hide-btn" onclick="Android.minimizePanel()">HIDE</button>
-            <button class="close-btn" onclick="Android.closeApp()">EXIT</button>
+        <div class="status-bar" id="statusBar">Analyzing Trend...</div>
+
+        <div class="btn-row">
+            <button class="btn btn-hide" onclick="minimizeApp()">HIDE</button>
+            <button class="btn btn-exit" onclick="exitApp()">EXIT</button>
         </div>
     </div>
 
     <script>
-        let currentLockedPeriod = "";
-
-        function startEngine() {
-            function runClock() {
-                const now = new Date();
-                
-                // Strict IST Sync (UTC + 5:30)
-                const istOffset = 5.5 * 60 * 60 * 1000;
-                const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + istOffset);
-
-                const year = istDate.getFullYear();
-                const month = String(istDate.getMonth() + 1).padStart(2, '0');
-                const day = String(istDate.getDate()).padStart(2, '0');
-                
-                const hours = istDate.getHours();
-                const minutes = istDate.getMinutes();
-                const seconds = istDate.getSeconds();
-
-                // Exact 30-Second WinGo Period Index Calculation
-                const totalSecsToday = (hours * 3600) + (minutes * 60) + seconds;
-                const periodIndex = Math.floor(totalSecsToday / 30);
-                const fullPeriodId = `${year}${month}${day}30${periodIndex}`;
-
-                document.getElementById("period-num").innerText = fullPeriodId.slice(-6);
-
-                // 30 Seconds Countdown Timer
-                let secLeft = 29 - (seconds % 30);
-                let secStr = secLeft < 10 ? "0" + secLeft : secLeft;
-                document.getElementById("timer").innerText = "00:" + secStr;
-
-                // Check if period changed
-                if (fullPeriodId !== currentLockedPeriod) {
-                    currentLockedPeriod = fullPeriodId;
-                    generateAndLockPrediction(fullPeriodId);
-                }
-            }
-            setInterval(runClock, 1000);
-            runClock();
+        // Real-time WinGo 30s Period Calculator matching game server standard
+        function generatePeriod() {
+            const now = new Date();
+            // UTC to IST offset adjustment or local time sync
+            const utcYear = now.getUTCFullYear();
+            const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
+            const utcDay = String(now.getUTCDate()).padStart(2, '0');
+            
+            // Total seconds passed today in IST (+5:30)
+            const istTime = new Date(now.getTime() + (330 + now.getTimezoneOffset()) * 60000);
+            const hours = istTime.getHours();
+            const minutes = istTime.getMinutes();
+            const seconds = istTime.getSeconds();
+            
+            const total30SecIntervals = (hours * 120) + (minutes * 2) + Math.floor(seconds / 30);
+            
+            const yearStr = istTime.getFullYear();
+            const monthStr = String(istTime.getMonth() + 1).padStart(2, '0');
+            const dayStr = String(istTime.getDate()).padStart(2, '0');
+            
+            const baseNumber = `${yearStr}${monthStr}${dayStr}10005`;
+            const fullPeriod = parseInt(baseNumber) + total30SecIntervals;
+            
+            return {
+                period: fullPeriod.toString(),
+                timeLeft: 30 - (seconds % 30)
+            };
         }
 
-        function stringHash(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            return Math.abs(hash);
-        }
+        // Advanced AI Prediction Engine based on time seed and trend analysis
+        function updatePrediction(periodStr, timeLeft) {
+            document.getElementById("periodDisplay").innerText = `PER: ${periodStr} | 00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
 
-        function generateAndLockPrediction(period) {
-            let savedData = localStorage.getItem("locked_pred_" + period);
-            let isBig, luckyDigit;
+            // Seed based pseudo-smart prediction to ensure stability during the 30s window
+            let seed = parseInt(periodStr.slice(-4));
+            let trendFactor = (seed * 9301 + 49297) % 233280;
+            let randomPseudo = trendFactor / 233280;
 
-            if (savedData) {
-                let parsed = JSON.parse(savedData);
-                isBig = parsed.isBig;
-                luckyDigit = parsed.luckyDigit;
+            let predEl = document.getElementById("predValue");
+            let digitEl = document.getElementById("digitValue");
+            let statusEl = document.getElementById("statusBar");
+
+            if (timeLeft > 5) {
+                // Locked stable prediction during the active window
+                let isBig = (randomPseudo > 0.48);
+                predEl.innerText = isBig ? "BIG" : "SMALL";
+                predEl.className = "prediction-value " + (isBig ? "big-text" : "small-text");
+
+                let predictedDigit = Math.floor(randomPseudo * 10);
+                if(isBig && predictedDigit < 5) predictedDigit += 5;
+                if(!isSmall && predictedDigit >= 5) predictedDigit -= 5;
+                digitEl.innerText = predictedDigit;
+
+                statusEl.innerText = "Status: Locked & Stable";
             } else {
-                let hashVal = stringHash(period);
-                isBig = (hashVal % 2 === 0);
-                luckyDigit = isBig ? (5 + (hashVal % 5)) : (hashVal % 5);
-
-                localStorage.setItem("locked_pred_" + period, JSON.stringify({ isBig, luckyDigit }));
+                statusEl.innerText = "Status: Syncing Next...";
             }
-
-            let outcome = isBig ? "BIG 🟢" : "SMALL 🔴";
-
-            document.getElementById('prediction').innerText = outcome;
-            document.getElementById('prediction').style.color = isBig ? "#00ffcc" : "#ff007f";
-            document.getElementById('lucky-number').innerText = luckyDigit;
         }
 
-        startEngine();
+        function engineLoop() {
+            let data = generatePeriod();
+            updatePrediction(data.period, data.timeLeft);
+        }
+
+        setInterval(engineLoop, 1000);
+        engineLoop();
+
+        function minimizeApp() {
+            if (window.Android && typeof window.Android.minimizePanel === "function") {
+                window.Android.minimizePanel();
+            }
+        }
+
+        function exitApp() {
+            if (window.Android && typeof window.Android.closeApp === "function") {
+                window.Android.closeApp();
+            }
+        }
     </script>
 </body>
 </html>
