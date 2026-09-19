@@ -1,81 +1,44 @@
 package com.paglu.predictor.pro;
 
-import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.Window;
-import android.view.WindowManager;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Toast;
+import android.provider.Settings;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int OVERLAY_PERMISSION_REQ_CODE = 1234;
 
-    private WebView webView;
-
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // Fullscreen aur No Title bar
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        webView = new WebView(this);
-        setContentView(webView);
-
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDomStorageEnabled(true);
-        webSettings.setLoadWithOverviewMode(true);
-        webSettings.setUseWideViewPort(true);
-
-        // Transparent background taकि floating style lage
-        webView.setBackgroundColor(0x00000000);
-
-        // JavaScript Bridge connect karna
-        webView.addJavascriptInterface(new AppBridge(), "Android");
-
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
-            }
-        });
-
-        // Local asset se injector.html load karna
-        webView.loadUrl("file:///android_asset/injector.html");
+        // Check for Overlay Permission (Display over other apps)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, OVERLAY_PERMISSION_REQ_CODE);
+        } else {
+            startFloatingService();
+        }
     }
 
-    // JavaScript to Android Bridge Class
-    public class AppBridge {
-        @JavascriptInterface
-        public void closeApp() {
-            finishAffinity();
+    private void startFloatingService() {
+        Intent serviceIntent = new Intent(this, FloatingService.java);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
         }
-
-        @JavascriptInterface
-        public void minimizePanel() {
-            moveTaskToBack(true);
-        }
-
-        @JavascriptInterface
-        public void showToast(String message) {
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        }
+        finish(); // Main activity band ho jayegi aur overlay chal padega
     }
 
     @Override
-    public void onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            super.onBackPressed();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == OVERLAY_PERMISSION_REQ_CODE) {
+            startFloatingService();
         }
     }
 }
