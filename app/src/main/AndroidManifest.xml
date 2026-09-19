@@ -7,7 +7,6 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@android:of/sym_def_app_icon"
         android:label="Paglu AI Pro"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar"
