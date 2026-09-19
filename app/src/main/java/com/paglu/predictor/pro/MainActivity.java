@@ -20,25 +20,25 @@ public class MainActivity extends AppCompatActivity {
                     Uri.parse("package:" + getPackageName()));
             startActivityForResult(intent, OVERLAY_PERMISSION_REQ_CODE);
         } else {
-            startFloatingService();
+            startServiceAndFinish();
         }
     }
 
-    private void startFloatingService() {
-        Intent serviceIntent = new Intent(this, FloatingService.java);
+    private void startServiceAndFinish() {
+        Intent serviceIntent = new Intent(this, FloatingService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent);
         } else {
             startService(serviceIntent);
         }
-        finish(); // Main activity band ho jayegi aur overlay chal padega
+        finish();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == OVERLAY_PERMISSION_REQ_CODE) {
-            startFloatingService();
+            startServiceAndFinish();
         }
     }
 }
