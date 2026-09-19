@@ -31,8 +31,8 @@ public class FloatingService extends Service {
 
         createNotificationChannel();
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Paglu AI Pro Running")
-                .setContentText("Floating overlay is active")
+                .setContentTitle("Paglu AI Pro")
+                .setContentText("Overlay is running active")
                 .setSmallIcon(android.R.drawable.ic_menu_compass)
                 .build();
 
@@ -44,7 +44,7 @@ public class FloatingService extends Service {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
-        webView.setBackgroundColor(0x00000000); // Transparent background
+        webView.setBackgroundColor(0x00000000);
 
         webView.addJavascriptInterface(new AppBridge(), "Android");
         webView.loadUrl("file:///android_asset/injector.html");
@@ -70,7 +70,6 @@ public class FloatingService extends Service {
         params.x = 100;
         params.y = 100;
 
-        // Touch se drag karne ke liye
         webView.setOnTouchListener(new View.OnTouchListener() {
             private int initialX, initialY;
             private float initialTouchX, initialTouchY;
