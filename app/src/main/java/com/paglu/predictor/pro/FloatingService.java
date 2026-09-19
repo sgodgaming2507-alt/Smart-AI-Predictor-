@@ -70,6 +70,30 @@ public class FloatingService extends Service {
         params.x = 100;
         params.y = 100;
 
+        // Touch se drag karne ke liye
+        webView.setOnTouchListener(new View.OnTouchListener() {
+            private int initialX, initialY;
+            private float initialTouchX, initialTouchY;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = params.x;
+                        initialY = params.y;
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
+                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
+                        windowManager.updateViewLayout(webView, params);
+                        return true;
+                }
+                return false;
+            }
+        });
+
         windowManager.addView(webView, params);
     }
 
@@ -83,19 +107,6 @@ public class FloatingService extends Service {
         public void minimizePanel() {
             if(webView != null) {
                 webView.setVisibility(View.GONE);
-            }
-        }
-
-        @JavascriptInterface
-        public void requestFocusable(final boolean focusable) {
-            // Keyboard kholne ke liye window ko focusable banate hain
-            if (windowManager != null && webView != null) {
-                if (focusable) {
-                    params.flags &= ~WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-                } else {
-                    params.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-                }
-                windowManager.updateViewLayout(webView, params);
             }
         }
     }
