@@ -56,9 +56,12 @@ public class FloatingService extends Service {
             layoutType = WindowManager.LayoutParams.TYPE_PHONE;
         }
 
+        // Exact 250dp size fix taaki circle adha kate nahi
+        int windowSize = (int) (250 * getResources().getDisplayMetrics().density);
+
         params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
+                windowSize,
+                windowSize,
                 layoutType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
